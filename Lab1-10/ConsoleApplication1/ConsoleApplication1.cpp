@@ -17,13 +17,8 @@ int main()
 
 	printf("Please, enter positive number of meters: ");
 	int result = scanf("%f", &meters);
-	if (result == 0) 
-	{
-		printf("Please, enter positive number of meters next time");
-	}
-	else
-	{
-		if (meters >= 0)
+
+		if (meters >= 0 && result == 1)
 		{
 			arshins = meters * ARSH;
 			printf("\n Your number of meters in arshins: %f", arshins);
@@ -34,7 +29,6 @@ int main()
 		{
 			printf("Please, enter positive number of meters next time");
 		}
-	}
 	_getch();
 	return 0;
 }
