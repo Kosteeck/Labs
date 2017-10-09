@@ -10,14 +10,11 @@
 #define SPAN 4.37445
 #define ARSH 1.40607424072
 
-
 int main()
 {
 	float meters, arshins, span;
-
 	printf("Please, enter positive number of meters: ");
 	int result = scanf("%f", &meters);
-
 		if (meters >= 0 && result == 1)
 		{
 			arshins = meters * ARSH;
