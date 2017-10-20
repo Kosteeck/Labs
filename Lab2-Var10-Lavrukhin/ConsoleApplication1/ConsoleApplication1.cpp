@@ -10,7 +10,7 @@
 #include "stdio.h"
 #include "conio.h"
 #define SIZE 100
-	int scanf_check();
+int scanf_check();
 float scanf_check2();
 int main()
 {
