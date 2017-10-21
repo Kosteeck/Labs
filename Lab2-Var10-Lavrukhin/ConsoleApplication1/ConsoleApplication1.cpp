@@ -11,8 +11,13 @@
 #include "conio.h"
 #include "windows.h"
 #define SIZE 100
+<<<<<<< HEAD
 int scanf_check_int();
 float scanf_check_float();
+=======
+int scanf_check();
+float scanf_check2();
+>>>>>>> 6abecdc5c361147147250a7cbd1cba6e5d8ca6b4
 int main()
 {
 	SetConsoleCP(1251);
