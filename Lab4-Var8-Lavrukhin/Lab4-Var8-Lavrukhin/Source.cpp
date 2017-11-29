@@ -31,6 +31,7 @@ int main(void)
 	deleteSpaces(sentence, size);
 	size = size - counter;
 	fillFileFromMassive(sentence, size, finalFile);
+	fprintf(finalFile, "(”далено %i пробелов и знаков табул€ции)", counter);
 }
 
 int checkFile(FILE *myFile)
