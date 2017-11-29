@@ -12,11 +12,11 @@
 #include <stdlib.h>
 #define SIZE 512
 
-int checkFile(FILE *myFile);							// Проверка на заполненность файла
-int amountOfFile(FILE *myFile);							// Подсчет символов в файле
-int fillMassiveFromFile(char *sentence, int size, int counter, FILE *myFile);	// Заполнение массива данными из файла
-int deleteSpaces(char *sentence, int size);					// Удаление пробелов и знаков табуляции из массива
-int fillFileFromMassive(char *sentence, int size, FILE *finallFile);		// Заполнение файла данными из массива
+int checkFile(FILE *myFile);								// Проверка на заполненность файла
+int amountOfFile(FILE *myFile);								// Подсчет символов в файле
+int fillMassiveFromFile(char *sentence, int size, int counter, FILE *myFile);		// Заполнение массива данными из файла
+int deleteSpaces(char *sentence, int size);						// Удаление пробелов и знаков табуляции из массива
+int fillFileFromMassive(char *sentence, int size, FILE *finallFile);			// Заполнение файла данными из массива
 
 int main(void)
 {
@@ -31,7 +31,7 @@ int main(void)
 	deleteSpaces(sentence, size);
 	size = size - counter;
 	fillFileFromMassive(sentence, size, finalFile);
-	fprintf(finalFile, "(������� %i �������� � ������ ���������)", counter);
+	fprintf(finalFile, "(Удалено %i пробелов и знаков табуляции)", counter);
 }
 
 int checkFile(FILE *myFile)
