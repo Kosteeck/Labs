@@ -28,16 +28,18 @@ void Choice();
 int  Checkup(int max);
 void EnterFilm();
 void SearchFilm();
-void OutputFilms();
 void SortingFilms();
+void OutputFilms();
 void ChoiceFunction(int inquiry);
 void FillFilm(struct Film *Movie, struct Producer *FIO, struct Value *MONEY);
 void FillFile(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Value MONEY);
 void SearchFilmElement();
 void SearchFilmByElement(int choose);
 void FillStructForSearch(struct Film *Movie, struct Producer *FIO, struct Value *MONEY, FILE *filmsFile);
-int  CheckForCoincidence(struct Film Movie, struct Producer *FIO, struct Value *MONEY, int inquiry, char *search);
-void checkFile(FILE *filmsFile);	
+int  CheckForCoincidence(struct Film Movie, struct Producer FIO, struct Value MONEY, int inquiry, char *search);
+void checkFile(FILE *filmsFile);
+void SortingFunction(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int j);
+void OutputOnDisplay(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int i);
 
 struct Film
 {
@@ -50,8 +52,7 @@ struct Producer
 {
 	char	producerName[MAX_LENGTH_NAME_PRODUCER];
 	char	producerSurname[MAX_LENGTH_NAME_PRODUCER];
-	char	producerLastName[MAX_LENGTH_NAME_PRODUCER];
-	int		i = 0;
+	char	producerLastName[MAX_LENGTH_NAME_PRODUCER] = "";
 };
 
 struct Value
@@ -194,11 +195,6 @@ void FillFile(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Va
 	fprintf(filmsFile, "%d\0\n", MONEY.income);
 }
 
-void SortingFilms()
-{
-
-}
-
 void OutputFilms()
 { 
 	Film Movie;
@@ -283,7 +279,7 @@ void SearchFilmByElement(int choose)
 	do
 	{
 		FillStructForSearch(&Movie, &FIO, &MONEY, filmsFile);
-		check = CheckForCoincidence(Movie, &FIO, &MONEY, choose, search);
+		check = CheckForCoincidence(Movie, FIO, MONEY, choose, search);
 		if (check == true)
 		{
 			printf("\nФильм №%d", n);
@@ -312,7 +308,7 @@ void FillStructForSearch(struct Film *Movie, struct Producer *FIO, struct Value 
 	fscanf(filmsFile, "%d", &MONEY->income);
 }
 
-int CheckForCoincidence(struct Film Movie, struct Producer *FIO, struct Value *MONEY, int inquiry, char *search)
+int CheckForCoincidence(struct Film Movie, struct Producer FIO, struct Value MONEY, int inquiry, char *search)
 {
 	bool check = false;
 	int checkint;
@@ -324,7 +320,7 @@ int CheckForCoincidence(struct Film Movie, struct Producer *FIO, struct Value *M
 			check = true;
 		}
 	case 2:
-		if (strcmp(FIO->producerSurname, search) == 0)
+		if (strcmp(FIO.producerSurname, search) == 0)
 		{
 			check = true;
 		}
@@ -341,16 +337,95 @@ int CheckForCoincidence(struct Film Movie, struct Producer *FIO, struct Value *M
 		}
 	case 5:
 		checkint = atoi(search);
-		if (MONEY->cost == checkint)
+		if (MONEY.cost == checkint)
 		{
 			check = true;
 		}
 	case 6:
 		checkint = atoi(search);
-		if (MONEY->income == checkint)
+		if (MONEY.income == checkint)
 		{
 			check = true;
 		}
 	}
 	return check;
+}
+
+void SortingFilms()
+{
+	Film Movie[100];
+	Producer FIO[100];
+	Value MONEY[100];
+	FILE* filmsFile = fopen("Films.txt", "r");
+	int amountStructs = 0, n = 1;
+	do
+	{
+		FillStructForSearch(&Movie[amountStructs], &FIO[amountStructs], &MONEY[amountStructs], filmsFile);
+		amountStructs++;
+	} while (fgetc(filmsFile) != EOF);
+
+	for (int i = 0; i < amountStructs; i++)
+		for (int j = 0; j < amountStructs - 1; j++)
+		{
+			if (Movie[j].dateOfRelease > Movie[j + 1].dateOfRelease)
+			{
+				SortingFunction(Movie, FIO, MONEY, j);
+			}
+		}
+	for (int i = 0; i < amountStructs; i++)
+	{
+		printf("\nФильм №%d", n);
+		OutputOnDisplay(Movie, FIO, MONEY, i);
+		n++;
+	}
+}
+
+void SortingFunction(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int j)
+{
+	int reserv;
+	char reservChar[100];
+
+	reserv = MONEY[j].cost;
+	MONEY[j].cost = MONEY[j + 1].cost;
+	MONEY[j + 1].cost = reserv;
+
+	reserv = MONEY[j].income;
+	MONEY[j].income = MONEY[j + 1].income;
+	MONEY[j + 1].income = reserv;
+
+	reserv = Movie[j].dateOfRelease;
+	Movie[j].dateOfRelease = Movie[j + 1].dateOfRelease;
+	Movie[j + 1].dateOfRelease = reserv;
+
+	strcpy(reservChar, Movie[j].name);
+	strcpy(Movie[j].name, Movie[j + 1].name);
+	strcpy(Movie[j + 1].name, reservChar);
+
+	strcpy(reservChar, Movie[j].country);
+	strcpy(Movie[j].country, Movie[j + 1].country);
+	strcpy(Movie[j + 1].country, reservChar);
+
+	strcpy(reservChar, FIO[j].producerName);
+	strcpy(FIO[j].producerName, FIO[j + 1].producerName);
+	strcpy(FIO[j + 1].producerName, reservChar);
+
+	strcpy(reservChar, FIO[j].producerSurname);
+	strcpy(FIO[j].producerSurname, FIO[j + 1].producerSurname);
+	strcpy(FIO[j + 1].producerSurname, reservChar);
+
+	strcpy(reservChar, FIO[j].producerLastName);
+	strcpy(FIO[j].producerLastName, FIO[j + 1].producerLastName);
+	strcpy(FIO[j + 1].producerLastName, reservChar);
+}
+
+void OutputOnDisplay(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int i)
+{
+			printf("\nНазвание фильма: %s", Movie[i].name);
+			printf("Имя продюссера: %s", FIO[i].producerName);
+			printf("Фамилия продюссера: %s", FIO[i].producerSurname);
+			printf("Отчество продюссера: %s", FIO[i].producerLastName);
+			printf("Страна, где был сделан фильм: %s", Movie[i].country);
+			printf("Год выпуска фильма: %d", Movie[i].dateOfRelease);
+			printf("\nЗатраты на фильм: %d", MONEY[i].cost);
+			printf("\nДоходы фильма: %d\n\n", MONEY[i].income);
 }
