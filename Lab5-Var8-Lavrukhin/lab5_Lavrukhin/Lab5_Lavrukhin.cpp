@@ -2,9 +2,10 @@
 Лаврухин Константин Максимович
 Лабораторная работа №5.
 Вариант №8
-Задание : Написать программу, которая записывает с клавиатуры в файл структуру
-	согласно выданному варианту задания.В качестве разделителя полей структуры
-	использовать символ табуляции.В программе реализовать :
+Задание : 
+Написать программу, которая записывает с клавиатуры в файл структуру
+согласно выданному варианту задания.В качестве разделителя полей структуры
+использовать символ табуляции.В программе реализовать:
 а) дополнение существующего массива структур новыми структурами;
 б) поиск структуры с заданным значением выбранного элемента;
 в) вывод на экран содержимого массива структур;
@@ -15,8 +16,11 @@
 */
 
 #define _CRT_SECURE_NO_WARNINGS
+#define MAX_LENGTH_YEAR 2020
+#define MAX_LENGTH_MONEY 100000000
 #define MAX_LENGTH_NAME_FILM 256
 #define MAX_LENGTH_NAME_PRODUCER 50
+#define MAX_LENGTH_STRUCT_MASSIVE 100
 #define MAX_LENGTH_NAME_COUNTRY 58
 
 #include <stdio.h>
@@ -24,41 +28,41 @@
 #include <conio.h>
 #include <stdlib.h>
 
-void Choice();
-int  Checkup(int max);
-void EnterFilm();
-void SearchFilm();
-void SortingFilms();
-void OutputFilms();
-void ChoiceFunction(int inquiry);
-void FillFilm(struct Film *Movie, struct Producer *FIO, struct Value *MONEY);
-void FillFile(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Value MONEY);
-void SearchFilmElement();
-void SearchFilmByElement(int choose);
-void FillStructForSearch(struct Film *Movie, struct Producer *FIO, struct Value *MONEY, FILE *filmsFile);
-int  CheckForCoincidence(struct Film Movie, struct Producer FIO, struct Value MONEY, int inquiry, char *search);
-void checkFile(FILE *filmsFile);
-void SortingFunction(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int j);
-void OutputOnDisplay(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int i);
+void menuPrintChoices();
+int  checkupNumber(int max);
+void enterFilm();
+void searchFilm();
+void sortingFilms();
+void outputFilms();
+void makingChoice(int inquiry);
+void fillFilmInStructFromUser(struct Film *Movie, struct Producer *FIO, struct Value *MONEY);
+void fillFileFromStruct(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Value MONEY);
+void filmSearchMenu();
+void searchFilmByElement(int choose);
+void fillStructFromFile(struct Film *Movie, struct Producer *FIO, struct Value *MONEY, FILE *filmsFile);
+int  checkForCoincidence(struct Film Movie, struct Producer FIO, struct Value MONEY, int inquiry, char *search);
+void checkFileForEmptiness(FILE *filmsFile);
+void sortingFunction(struct Film Movie[MAX_LENGTH_STRUCT_MASSIVE], struct Producer FIO[MAX_LENGTH_STRUCT_MASSIVE], struct Value MONEY[MAX_LENGTH_STRUCT_MASSIVE], int j);
+void outputOnDisplay(struct Film Movie[MAX_LENGTH_STRUCT_MASSIVE], struct Producer FIO[MAX_LENGTH_STRUCT_MASSIVE], struct Value MONEY[MAX_LENGTH_STRUCT_MASSIVE], int i);
 
 struct Film
 {
 	char	name[MAX_LENGTH_NAME_FILM];
 	char	country[MAX_LENGTH_NAME_COUNTRY];
-	int		dateOfRelease = 0;
+	int		dateOfRelease;
 };
 
 struct Producer
 {
 	char	producerName[MAX_LENGTH_NAME_PRODUCER];
 	char	producerSurname[MAX_LENGTH_NAME_PRODUCER];
-	char	producerLastName[MAX_LENGTH_NAME_PRODUCER] = "";
+	char	producerLastName[MAX_LENGTH_NAME_PRODUCER];
 };
 
 struct Value
 {
-	int	cost = 0;
-	int	income = 0;
+	int	cost;
+	int	income;
 };
 
 int main()
@@ -69,14 +73,14 @@ int main()
 	do
 	{
 		printf("\nЧто вы хотите сделать?\n");
-		Choice();
-		inquiry = Checkup(5);
-		ChoiceFunction(inquiry);
+		menuPrintChoices();
+		inquiry = checkupNumber(5);
+		makingChoice(inquiry);
 	} while (inquiry != 5);
 	return 0;
 }
 
-void Choice()
+void menuPrintChoices()
 {
 	printf("1)Внести новый фильм в файл\n");
 	printf("2)Поиск фильма в файле\n");
@@ -86,7 +90,7 @@ void Choice()
 	printf("Ответ: ");
 }
 
-int Checkup(int max)
+int checkupNumber(int max)
 {
 	int number = 0;
 	while (!scanf("%d", &number) || number < 1 || number > max)
@@ -98,33 +102,33 @@ int Checkup(int max)
 	{
 		while (getchar() != '\n');
 		printf("Ошибка ввода. Пожалуйста, повторите снова: ");
-		number = Checkup(max);
+		number = checkupNumber(max);
 	}
 	return number;
 }
 
-void ChoiceFunction(int inquiry)
+void makingChoice(int inquiry)
 {
 	switch (inquiry)
 	{
 	case 1:
-		EnterFilm();
+		enterFilm();
 		break;
 	case 2:
-		SearchFilm();
+		searchFilm();
 		break;
 	case 3:
-		OutputFilms();
+		outputFilms();
 		break;
 	case 4:
-		SortingFilms();
+		sortingFilms();
 		break;
 	case 5:
 		break;
 	}
 }
 
-void EnterFilm()
+void enterFilm()
 {
 	Film Movie;
 	Producer FIO;
@@ -139,10 +143,10 @@ void EnterFilm()
 	int choice;
 	do
 	{
-		FillFilm(&Movie, &FIO, &MONEY);
-		FillFile(filmsFile, Movie, FIO, MONEY);
+		fillFilmInStructFromUser(&Movie, &FIO, &MONEY);
+		fillFileFromStruct(filmsFile, Movie, FIO, MONEY);
 		printf("\nЗаписать еще один фильм? (1 - да, 2 - нет): ");
-		choice = Checkup(2);
+		choice = checkupNumber(2);
 		printf("\n");
 		if (choice == 1)
 		{
@@ -156,7 +160,7 @@ void EnterFilm()
 	fclose(filmsFile);
 }
 
-void FillFilm(struct Film *Movie, struct Producer *FIO, struct Value *MONEY)
+void fillFilmInStructFromUser(struct Film *Movie, struct Producer *FIO, struct Value *MONEY)
 {
 	printf("\nПожалуйста, введите название фильма: ");
 	fgets(Movie->name, MAX_LENGTH_NAME_FILM, stdin);
@@ -174,16 +178,16 @@ void FillFilm(struct Film *Movie, struct Producer *FIO, struct Value *MONEY)
 	fgets(Movie->country, MAX_LENGTH_NAME_COUNTRY, stdin);
 
 	printf("\nПожалуйста, введите год выпуска фильма: ");
-	Movie->dateOfRelease = Checkup(2020);
+	Movie->dateOfRelease = checkupNumber(MAX_LENGTH_YEAR);
 
 	printf("\nПожалуйста, введите затраты на фильм: ");
-	MONEY->cost = Checkup(100000000);
+	MONEY->cost = checkupNumber(MAX_LENGTH_MONEY); 
 
 	printf("\nПожалуйста, введите доходы фильма: ");
-	MONEY->income = Checkup(100000000);
+	MONEY->income = checkupNumber(MAX_LENGTH_MONEY);
 }
 
-void FillFile(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Value MONEY)
+void fillFileFromStruct(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Value MONEY)
 {
 	fprintf(filmsFile, " %s", Movie.name);
 	fprintf(filmsFile, "%s", FIO.producerName);
@@ -195,14 +199,14 @@ void FillFile(FILE *filmsFile, struct Film Movie, struct Producer FIO, struct Va
 	fprintf(filmsFile, "%d\0\n", MONEY.income);
 }
 
-void OutputFilms()
+void outputFilms()
 { 
 	Film Movie;
 	Producer FIO;
 	Value MONEY;
 
 	FILE* filmsFile = fopen("Films.txt", "r");
-	checkFile(filmsFile);
+	checkFileForEmptiness(filmsFile);
 	int n = 1;
 	do
 	{
@@ -236,7 +240,7 @@ void OutputFilms()
 	} while (fgetc(filmsFile) != EOF);
 }
 
-void checkFile(FILE *filmsFile)
+void checkFileForEmptiness(FILE *filmsFile)
 {
 	if (filmsFile == NULL)
 	{
@@ -246,14 +250,14 @@ void checkFile(FILE *filmsFile)
 	}
 }
 
-void SearchFilm()
+void searchFilm()
 {
-	SearchFilmElement();
-	int chooseElement = Checkup(6);
-	SearchFilmByElement(chooseElement);
+	filmSearchMenu();
+	int chooseElement = checkupNumber(6);
+	searchFilmByElement(chooseElement);
 }
 
-void SearchFilmElement()
+void filmSearchMenu()
 {
 	printf("\nПо какому элементу вы хотите найти фильм? ");
 	printf("\n1) Название фильма ");
@@ -265,7 +269,7 @@ void SearchFilmElement()
 	printf("\nОтвет: ");
 }
 
-void SearchFilmByElement(int choose)
+void searchFilmByElement(int choose)
 {
 	Film Movie;
 	Producer FIO;
@@ -278,8 +282,8 @@ void SearchFilmByElement(int choose)
 	fgets(search, MAX_LENGTH_NAME_FILM, stdin);
 	do
 	{
-		FillStructForSearch(&Movie, &FIO, &MONEY, filmsFile);
-		check = CheckForCoincidence(Movie, FIO, MONEY, choose, search);
+		fillStructFromFile(&Movie, &FIO, &MONEY, filmsFile);
+		check = checkForCoincidence(Movie, FIO, MONEY, choose, search);
 		if (check == true)
 		{
 			printf("\nФильм №%d", n);
@@ -296,7 +300,7 @@ void SearchFilmByElement(int choose)
 	} while (fgetc(filmsFile) != EOF);
 }
 
-void FillStructForSearch(struct Film *Movie, struct Producer *FIO, struct Value *MONEY, FILE *filmsFile)
+void fillStructFromFile(struct Film *Movie, struct Producer *FIO, struct Value *MONEY, FILE *filmsFile)
 {
 	fgets(Movie->name, MAX_LENGTH_NAME_FILM, filmsFile);
 	fgets(FIO->producerName, MAX_LENGTH_NAME_PRODUCER, filmsFile);
@@ -308,7 +312,7 @@ void FillStructForSearch(struct Film *Movie, struct Producer *FIO, struct Value 
 	fscanf(filmsFile, "%d", &MONEY->income);
 }
 
-int CheckForCoincidence(struct Film Movie, struct Producer FIO, struct Value MONEY, int inquiry, char *search)
+int checkForCoincidence(struct Film Movie, struct Producer FIO, struct Value MONEY, int inquiry, char *search)
 {
 	bool check = false;
 	int checkint;
@@ -351,16 +355,16 @@ int CheckForCoincidence(struct Film Movie, struct Producer FIO, struct Value MON
 	return check;
 }
 
-void SortingFilms()
+void sortingFilms()
 {
-	Film Movie[100];
-	Producer FIO[100];
-	Value MONEY[100];
+	Film Movie[MAX_LENGTH_STRUCT_MASSIVE];
+	Producer FIO[MAX_LENGTH_STRUCT_MASSIVE];
+	Value MONEY[MAX_LENGTH_STRUCT_MASSIVE];
 	FILE* filmsFile = fopen("Films.txt", "r");
 	int amountStructs = 0, n = 1;
 	do
 	{
-		FillStructForSearch(&Movie[amountStructs], &FIO[amountStructs], &MONEY[amountStructs], filmsFile);
+		fillStructFromFile(&Movie[amountStructs], &FIO[amountStructs], &MONEY[amountStructs], filmsFile);
 		amountStructs++;
 	} while (fgetc(filmsFile) != EOF);
 
@@ -369,56 +373,37 @@ void SortingFilms()
 		{
 			if (Movie[j].dateOfRelease > Movie[j + 1].dateOfRelease)
 			{
-				SortingFunction(Movie, FIO, MONEY, j);
+				sortingFunction(Movie, FIO, MONEY, j);
 			}
 		}
 	for (int i = 0; i < amountStructs; i++)
 	{
 		printf("\nФильм №%d", n);
-		OutputOnDisplay(Movie, FIO, MONEY, i);
+		outputOnDisplay(Movie, FIO, MONEY, i);
 		n++;
 	}
 }
 
-void SortingFunction(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int j)
+void sortingFunction(struct Film Movie[MAX_LENGTH_STRUCT_MASSIVE], struct Producer FIO[MAX_LENGTH_STRUCT_MASSIVE], struct Value MONEY[MAX_LENGTH_STRUCT_MASSIVE], int j)
 {
-	int reserv;
-	char reservChar[100];
+	Film reservFilm;
+	Producer reservProducer;
+	Value reservValue;
+	
+	reservFilm = Movie[j];
+	Movie[j] = Movie[j + 1];
+	Movie[j + 1] = reservFilm;
 
-	reserv = MONEY[j].cost;
-	MONEY[j].cost = MONEY[j + 1].cost;
-	MONEY[j + 1].cost = reserv;
+	reservProducer = FIO[j];
+	FIO[j] = FIO[j + 1];
+	FIO[j + 1] = reservProducer;
 
-	reserv = MONEY[j].income;
-	MONEY[j].income = MONEY[j + 1].income;
-	MONEY[j + 1].income = reserv;
-
-	reserv = Movie[j].dateOfRelease;
-	Movie[j].dateOfRelease = Movie[j + 1].dateOfRelease;
-	Movie[j + 1].dateOfRelease = reserv;
-
-	strcpy(reservChar, Movie[j].name);
-	strcpy(Movie[j].name, Movie[j + 1].name);
-	strcpy(Movie[j + 1].name, reservChar);
-
-	strcpy(reservChar, Movie[j].country);
-	strcpy(Movie[j].country, Movie[j + 1].country);
-	strcpy(Movie[j + 1].country, reservChar);
-
-	strcpy(reservChar, FIO[j].producerName);
-	strcpy(FIO[j].producerName, FIO[j + 1].producerName);
-	strcpy(FIO[j + 1].producerName, reservChar);
-
-	strcpy(reservChar, FIO[j].producerSurname);
-	strcpy(FIO[j].producerSurname, FIO[j + 1].producerSurname);
-	strcpy(FIO[j + 1].producerSurname, reservChar);
-
-	strcpy(reservChar, FIO[j].producerLastName);
-	strcpy(FIO[j].producerLastName, FIO[j + 1].producerLastName);
-	strcpy(FIO[j + 1].producerLastName, reservChar);
+	reservValue = MONEY[j];
+	MONEY[j] = MONEY[j + 1];
+	MONEY[j + 1] = reservValue;
 }
 
-void OutputOnDisplay(struct Film Movie[100], struct Producer FIO[100], struct Value MONEY[100], int i)
+void outputOnDisplay(struct Film Movie[MAX_LENGTH_STRUCT_MASSIVE], struct Producer FIO[MAX_LENGTH_STRUCT_MASSIVE], struct Value MONEY[MAX_LENGTH_STRUCT_MASSIVE], int i)
 {
 			printf("\nНазвание фильма: %s", Movie[i].name);
 			printf("Имя продюссера: %s", FIO[i].producerName);
