@@ -44,6 +44,7 @@ struct clients
 
 void checkFile(FILE *RenderServices, FILE *Client, FILE *Services);
 int checkServiceInFile(char *service, FILE *services);
+void checkForCoincidenceInServices(int codeOfService, FILE* Report);
 void phoneNumberSearch(FILE *RenderServices, int code, char* phoneNumber);
 void searchClients(FILE* Client, FILE* Report, char *phoneNumbers);
 
@@ -62,6 +63,7 @@ int main()
 	fgets(service, MAX_LENGHT_SERVICE, stdin);
 	service[strlen(service) - 1] = '\0';
 	int codeOfService = checkServiceInFile(service, Services);
+	checkForCoincidenceInServices(codeOfService, Report);
 	phoneNumberSearch(RenderServices, codeOfService, phoneNumber);
 	searchClients(Client, Report, phoneNumber);
 	return 0;
@@ -72,7 +74,6 @@ void checkFile(FILE *RenderServices, FILE *Client, FILE *Services)
 	if (RenderServices == NULL)
 	{
 		printf("Пожалуйста, введите текст в файл .renderServicesInfo.txt в след. раз");
-		_getch();
 		exit(0);
 	}
 	else if (Client == NULL)
@@ -92,7 +93,7 @@ void checkFile(FILE *RenderServices, FILE *Client, FILE *Services)
 int checkServiceInFile(char *service, FILE *Services) //Оптимизировать, вынести в отдельные функции циклы, спросить насчет переноса строки в файле.
 {
 	struct services arrayOfService;
-	int code, j = 0, k = 0;
+	int code = 0, j = 0, k = 0;
 	char massiveOfServices[MAX_LENGHT_STRUCT_SERVICE_ARRAY];
 	while (strcmp(arrayOfService.nameOfService, service) != 0 && !feof(Services))
 	{
@@ -114,9 +115,19 @@ int checkServiceInFile(char *service, FILE *Services) //Оптимизирова
 				j++; k++;
 			}
 		}
-	} 
-		code = atoi(arrayOfService.serviceCode);
+	}
+	code = atoi(arrayOfService.serviceCode);
 	return code;
+}
+
+void checkForCoincidenceInServices(int codeOfService, FILE* Report)
+{
+	if (codeOfService == NULL)
+	{
+		fprintf(Report, "Нет данных.");
+		_getch();
+		exit(0);
+	}
 }
 
 void phoneNumberSearch(FILE *RenderServices, int code, char* phoneNumber)
@@ -164,7 +175,7 @@ void phoneNumberSearch(FILE *RenderServices, int code, char* phoneNumber)
 	}
 }
 
-void searchClients(FILE* Client, FILE* Report,char *phoneNumbers)
+void searchClients(FILE* Client, FILE* Report, char *phoneNumbers)
 {
 	struct clients clientsInfo;
 	while (!feof(Client))
@@ -203,7 +214,7 @@ void searchClients(FILE* Client, FILE* Report,char *phoneNumbers)
 			}
 			if (checkNumbersForCoincidence == 9)
 			{
-				fprintf(Report,"%s, ", clientsInfo.FIO);
+				fprintf(Report, "%s, ", clientsInfo.FIO);
 			}
 		}
 		while (arrayOfClients[j] != '\n')
